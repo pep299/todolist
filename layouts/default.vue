@@ -78,7 +78,7 @@ export default {
           to: '/',
         },
         {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-checkbox-marked-outline',
           title: 'Todolist',
           to: '/todolist',
         },

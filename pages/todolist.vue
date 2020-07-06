@@ -130,96 +130,112 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
+import { Vue, Component } from 'nuxt-property-decorator'
 import draggable from 'vuedraggable'
-export default {
-  name: 'TodoListView',
+
+export type ITask = {
+  id: number
+  done: boolean
+  text: string
+  order: number
+}
+
+@Component({
   components: {
     draggable,
   },
-  data: () => ({
-    tasks: [
-      {
-        id: '1',
-        done: false,
-        text: 'Foobar',
-        order: 1,
-      },
-      {
-        id: '2',
-        done: false,
-        text: 'Fizzbuzz',
-        order: 2,
-      },
-      {
-        id: '3',
-        done: true,
-        text: 'bubble sort',
-        order: 3,
-      },
-    ],
-    editTasks: [],
-    task: '',
-    isSwap: false,
-    editText: '',
-    editTargetIndex: null,
-  }),
-  computed: {
-    completedTasks() {
-      return this.tasks.filter((task) => task.done).length
+})
+export default class TodoList extends Vue {
+  tasks: ITask[] = [
+    {
+      id: 1,
+      done: false,
+      text: 'Foobar',
+      order: 1,
     },
-    progress() {
-      return (this.completedTasks / this.tasks.length) * 100
+    {
+      id: 2,
+      done: false,
+      text: 'Fizzbuzz',
+      order: 2,
     },
-    remainingTasks() {
-      return this.tasks.length - this.completedTasks
+    {
+      id: 3,
+      done: true,
+      text: 'bubble sort',
+      order: 3,
     },
-  },
-  methods: {
-    create() {
-      this.tasks.push({
-        id: `${this.tasks.length + 1}`,
-        done: false,
-        text: this.task,
-        order: this.tasks.length + 1,
-      })
-      this.task = ''
-    },
-    startSwapTasks() {
-      this.editTasks = JSON.parse(JSON.stringify(this.tasks))
-      this.isSwap = true
-      this.endEditText()
-    },
-    endSwapTasks() {
-      this.tasks = this.editTasks.map((obj, index) => {
-        return {
-          ...obj,
-          order: index + 1,
-        }
-      })
-      this.isSwap = false
-      this.editTasks = []
-    },
-    startEditText(index, text) {
-      this.isEdit = true
-      this.editTargetIndex = index
-      this.editText = text
-    },
-    endEditText() {
-      this.isEdit = false
-      this.editTargetIndex = null
-      this.editText = ''
-    },
-    saveText(task) {
-      task.text = this.editText
-      // this.save()
-      this.endEditText()
-    },
-    deleteTask(index) {
-      this.tasks.splice(index, 1)
-      this.endEditText()
-    },
-  },
+  ]
+
+  editTasks: object[] = []
+  task: string = ''
+  isSwap: boolean = false
+  isEdit: boolean = false
+  editText: string = ''
+  editTargetIndex: number | null = null
+
+  get completedTasks(): number {
+    return this.tasks.filter((task) => task.done).length
+  }
+
+  get progress(): number {
+    return (this.completedTasks / this.tasks.length) * 100
+  }
+
+  get remainingTasks(): number {
+    return this.tasks.length - this.completedTasks
+  }
+
+  create() {
+    this.tasks.push({
+      id: this.tasks.length + 1,
+      done: false,
+      text: this.task,
+      order: this.tasks.length + 1,
+    })
+    this.task = ''
+  }
+
+  startSwapTasks() {
+    this.editTasks = JSON.parse(JSON.stringify(this.tasks))
+    this.isSwap = true
+    this.endEditText()
+  }
+
+  endSwapTasks() {
+    this.tasks = this.editTasks.map((obj, index) => {
+      return {
+        ...obj,
+        order: index + 1,
+      }
+    })
+    this.isSwap = false
+    this.editTasks = []
+  }
+
+  startEditText(index: number, text: string) {
+    this.isEdit = true
+    this.editTargetIndex = index
+    this.editText = text
+  }
+
+  endEditText() {
+    this.isEdit = false
+    this.editTargetIndex = null
+    this.editText = ''
+  }
+
+  saveText(task: ITask) {
+    task.text = this.editText
+    // this.save()
+    this.endEditText()
+  }
+
+  deleteTask(index: number) {
+    this.tasks.splice(index, 1)
+    this.endEditText()
+  }
 }
 </script>
 

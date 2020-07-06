@@ -24,7 +24,9 @@
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^0.4.10",
+    "@types/vuedraggable": "^2.23.1",
     "nuxt": "^2.13.0",
+    "nuxt-property-decorator": "^2.7.2",
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
