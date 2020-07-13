@@ -121,7 +121,7 @@
             </v-btn>
           </template>
 
-          <v-btn icon @click="deleteTask(i)">
+          <v-btn icon @click="deleteTask(task)">
             <v-icon>mdi-trash-can-outline</v-icon>
           </v-btn>
         </v-card>
@@ -138,7 +138,13 @@ export type ITask = {
   id: number
   done: boolean
   text: string
-  order: number
+  orderno: number
+}
+
+export type ITaskPost = {
+  done: boolean
+  text: string
+  orderno: number
 }
 
 @Component({
@@ -147,27 +153,7 @@ export type ITask = {
   },
 })
 export default class TodoList extends Vue {
-  tasks: ITask[] = [
-    {
-      id: 1,
-      done: false,
-      text: 'Foobar',
-      order: 1,
-    },
-    {
-      id: 2,
-      done: false,
-      text: 'Fizzbuzz',
-      order: 2,
-    },
-    {
-      id: 3,
-      done: true,
-      text: 'bubble sort',
-      order: 3,
-    },
-  ]
-
+  tasks: ITask[] = []
   editTasks: object[] = []
   task: string = ''
   isSwap: boolean = false
@@ -187,12 +173,24 @@ export default class TodoList extends Vue {
     return this.tasks.length - this.completedTasks
   }
 
+  mounted() {
+    this.initData()
+  }
+
+  async initData() {
+    this.tasks = await this.$axios.$get<ITask[]>(
+      'http://localhost:3000/api/task'
+    )
+  }
+
   create() {
-    this.tasks.push({
-      id: this.tasks.length + 1,
+    const task: ITaskPost = {
       done: false,
       text: this.task,
-      order: this.tasks.length + 1,
+      orderno: this.tasks.length + 1,
+    }
+    this.$axios.$post('http://localhost:3000/api/task', task).then(() => {
+      this.initData()
     })
     this.task = ''
   }
@@ -207,9 +205,14 @@ export default class TodoList extends Vue {
     this.tasks = this.editTasks.map((obj, index) => {
       return {
         ...obj,
-        order: index + 1,
+        orderno: index + 1,
       }
     })
+    this.$axios
+      .$post('http://localhost:3000/api/task/sort', { param: this.tasks })
+      .then(() => {
+        this.initData()
+      })
     this.isSwap = false
     this.editTasks = []
   }
@@ -228,12 +231,27 @@ export default class TodoList extends Vue {
 
   saveText(task: ITask) {
     task.text = this.editText
+    const taskPut: ITaskPost = {
+      done: task.done,
+      text: task.text,
+      orderno: task.orderno,
+    }
+    this.$axios
+      .$put(`http://localhost:3000/api/task/${task.id}`, taskPut)
+      .then(() => {
+        this.initData()
+      })
     // this.save()
     this.endEditText()
   }
 
-  deleteTask(index: number) {
-    this.tasks.splice(index, 1)
+  deleteTask(task: ITask) {
+    // this.tasks.splice(index, 1)
+    this.$axios
+      .$delete(`http://localhost:3000/api/task/${task.id}`)
+      .then(() => {
+        this.initData()
+      })
     this.endEditText()
   }
 }

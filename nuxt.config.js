@@ -37,6 +37,7 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
+  // plugins: ['~/plugins/axios'],
   plugins: [],
   /*
    ** Auto import components
@@ -55,7 +56,7 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: [],
+  modules: ['@nuxtjs/axios', '@nuxtjs/proxy'],
   /*
    ** vuetify module configuration
    ** https://github.com/nuxt-community/vuetify-module
@@ -82,4 +83,10 @@ export default {
    ** See https://nuxtjs.org/api/configuration-build/
    */
   build: {},
+  axios: { proxy: true },
+  proxy: {
+    '/api/': {
+      target: 'http://localhost:3001',
+    },
+  },
 }
